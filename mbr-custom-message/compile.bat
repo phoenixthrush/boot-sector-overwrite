@@ -18,7 +18,6 @@ call :colorEcho 0F " (mbr-custom-message.exe)" && echo.
 .\mingw64\bin\windres.exe mbr-custom-message.rc mbr-custom-message.o
 .\mingw64\bin\g++ -O3 -Os -s -o mbr-custom-message.exe mbr-custom-message.cpp mbr-custom-message.o
 del mbr-custom-message.o
-del boot.bin
 
 echo.
 call :colorEcho 0A "[Info] finished!" && echo.
