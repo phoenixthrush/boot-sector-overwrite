@@ -46,7 +46,7 @@ mbr-tools/
 └── requirements.txt      # Python dependencies
 ```
 
-## 🚀 Quick Start
+## Quick Start Quick Start
 
 ### Prerequisites
 
@@ -260,7 +260,7 @@ qemu-system-i386 --version
 - `docs/qemu-guide.md` - QEMU usage guide
 - `docs/variant-descriptions.md` - Variant details
 
-## 🤝 Contributing
+## Contributing Contributing
 
 1. Fork the repository
 2. Create feature branch
@@ -268,11 +268,11 @@ qemu-system-i386 --version
 4. Update documentation
 5. Submit pull request
 
-## ⚖️ License
+## License License
 
 MIT License - See LICENSE file for details
 
-## 📞 Support
+## Support Support
 
 - **Issues**: Create GitHub issue
 - **Safety**: Read all warnings before use
