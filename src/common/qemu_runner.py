@@ -77,8 +77,8 @@ class QEMURunner:
     def get_dependency_info(self) -> str:
         """Get QEMU dependency information."""
         info = []
-        qemu_status = "✅" if self.qemu_cmd else "❌"
-        qemu_img_status = "✅" if self.qemu_img_cmd else "❌"
+        qemu_status = "" if self.qemu_cmd else ""
+        qemu_img_status = "" if self.qemu_img_cmd else ""
         
         info.append(f"{qemu_status} QEMU System Emulator")
         info.append(f"{qemu_img_status} QEMU Image Utility")
@@ -184,17 +184,17 @@ class QEMURunner:
             cmd.extend(['-name', f'MBR Test - {variant_name}'])
             
             try:
-                print(f"🚀 Starting QEMU to test {variant_name} MBR...")
-                print(f"📁 Disk image: {image_path}")
-                print(f"🔒 Snapshot mode: {'Enabled' if snapshot else 'Disabled'}")
-                print(f"🌐 Network: {'Disabled' if isolated else 'Enabled'}")
-                print(f"💾 Memory: {memory_mb}MB")
+                print(f" Starting QEMU to test {variant_name} MBR...")
+                print(f" Disk image: {image_path}")
+                print(f" Snapshot mode: {'Enabled' if snapshot else 'Disabled'}")
+                print(f" Network: {'Disabled' if isolated else 'Enabled'}")
+                print(f" Memory: {memory_mb}MB")
                 
                 if timeout_seconds > 0:
-                    print(f"⏱️ Auto-shutdown in {timeout_seconds} seconds")
+                    print(f" Auto-shutdown in {timeout_seconds} seconds")
                 
-                print("\n💡 Close the QEMU window to stop the test")
-                print("⚠️ The MBR code will run in the isolated VM environment\n")
+                print("\n Close the QEMU window to stop the test")
+                print(" The MBR code will run in the isolated VM environment\n")
                 
                 if timeout_seconds > 0:
                     # Run with timeout
@@ -262,19 +262,19 @@ class QEMURunner:
                 'timeout_seconds': 30
             }
         
-        print(f"🧪 Testing MBR variant: {variant_name}")
+        print(f" Testing MBR variant: {variant_name}")
         print("=" * 50)
         
         # Validate MBR data
         if len(mbr_data) != 512:
-            print(f"❌ Invalid MBR size: {len(mbr_data)} bytes (expected 512)")
+            print(f" Invalid MBR size: {len(mbr_data)} bytes (expected 512)")
             return False
         
         # Check boot signature
         if mbr_data[510:512] != b'\x55\xAA':
-            print("⚠️ Warning: Missing boot signature 0x55AA")
+            print(" Warning: Missing boot signature 0x55AA")
         else:
-            print("✅ Boot signature present")
+            print(" Boot signature present")
         
         # Run QEMU test
         success, msg = self.test_mbr_in_qemu(
@@ -284,8 +284,8 @@ class QEMURunner:
         )
         
         if success:
-            print(f"✅ {variant_name} test completed successfully")
+            print(f" {variant_name} test completed successfully")
         else:
-            print(f"❌ {variant_name} test failed: {msg}")
+            print(f" {variant_name} test failed: {msg}")
         
         return success

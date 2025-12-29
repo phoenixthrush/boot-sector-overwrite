@@ -29,7 +29,7 @@ def check_structure():
         '.gitignore'
     ]
     
-    print("🔍 Checking project structure...")
+    print(" Checking project structure...")
     
     missing_dirs = []
     for dir_path in required_dirs:

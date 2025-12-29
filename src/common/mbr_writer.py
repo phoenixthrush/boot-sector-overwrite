@@ -41,21 +41,21 @@ class MBRWriter:
             bool: True if user confirms, False otherwise
         """
         print("\n" + "="*60)
-        print("⚠️  DANGER WARNING - MASTER BOOT RECORD OPERATION ⚠️")
+        print("  DANGER WARNING - MASTER BOOT RECORD OPERATION ")
         print("="*60)
         print(f"You are about to write to: {target}")
         
         if self._is_physical_drive(target):
-            print("🚨 THIS IS A PHYSICAL DRIVE OPERATION 🚨")
+            print(" THIS IS A PHYSICAL DRIVE OPERATION ")
             print("This will overwrite the MBR and may make the drive UNBOOTABLE!")
             print("All data on this drive could be PERMANENTLY LOST!")
         else:
             print("This will overwrite the Master Boot Record.")
             
         print("\nEnsure you have:")
-        print("✅ Backed up all important data")
-        print("✅ Understood the consequences")
-        print("✅ Selected the correct target")
+        print(" Backed up all important data")
+        print(" Understood the consequences")
+        print(" Selected the correct target")
         
         if self.safety_level == "high":
             print("\nType 'I UNDERSTAND THE RISKS' to continue:")
@@ -99,12 +99,12 @@ class MBRWriter:
         target = str(target_file)
         
         if len(mbr_data) != 512:
-            print(f"❌ Error: MBR data must be exactly 512 bytes (got {len(mbr_data)})")
+            print(f" Error: MBR data must be exactly 512 bytes (got {len(mbr_data)})")
             return False
             
         if not force and self.safety_level != "none":
             if not self._display_safety_warning(target):
-                print("❌ Operation cancelled by user")
+                print(" Operation cancelled by user")
                 return False
         
         try:
@@ -113,9 +113,9 @@ class MBRWriter:
             
             with open(target, 'wb') as f:
                 f.write(mbr_data)
-            print(f"✅ Successfully wrote MBR to {target}")
+            print(f" Successfully wrote MBR to {target}")
             return True
             
         except Exception as e:
-            print(f"❌ Error writing MBR to {target}: {e}")
+            print(f" Error writing MBR to {target}: {e}")
             return False

@@ -22,7 +22,7 @@ try:
     from variants.empty.variant import EmptyVariant
     from variants.memz.variant import MemzVariant
 except ImportError as e:
-    print(f"❌ Import error: {e}")
+    print(f" Import error: {e}")
     print("Please ensure you're running from the project root directory")
     sys.exit(1)
 
@@ -44,25 +44,25 @@ class MBRBuilder:
     
     def check_dependencies(self):
         """Check if all required tools are available."""
-        print("🔍 Checking dependencies...")
+        print(" Checking dependencies...")
         
         compiler_deps = self.compiler.check_dependencies()
         print("Build Tools:")
         for tool, available in compiler_deps.items():
-            status = "✅" if available else "❌"
+            status = "" if available else ""
             print(f"  {status} {tool}")
         
         print("\nTesting Tools:")
         qemu_available = self.qemu.is_available()
-        print(f"  {'✅' if qemu_available else '❌'} QEMU")
+        print(f"  {'' if qemu_available else ''} QEMU")
         
         if not all(compiler_deps.values()):
-            print("\n❌ Missing build dependencies!")
+            print("\n Missing build dependencies!")
             print(self.compiler.get_dependency_info())
             return False
         
         if not qemu_available:
-            print("\n⚠️  QEMU not available - testing disabled")
+            print("\n  QEMU not available - testing disabled")
             print(self.qemu.get_dependency_info())
         
         return True
@@ -70,24 +70,24 @@ class MBRBuilder:
     def build_variant(self, variant_name: str) -> bool:
         """Build a specific MBR variant."""
         if variant_name not in self.variants:
-            print(f"❌ Unknown variant: {variant_name}")
+            print(f" Unknown variant: {variant_name}")
             print(f"Available variants: {', '.join(self.variants.keys())}")
             return False
         
         variant = self.variants[variant_name]
         config = variant.get_config()
         
-        print(f"🔨 Building {config['display_name']} variant...")
+        print(f" Building {config['display_name']} variant...")
         
         # Display variant info
-        print(f"📋 Description: {config['description']}")
-        print(f"⚠️  Safety Level: {config['safety_level']}")
+        print(f" Description: {config['description']}")
+        print(f"  Safety Level: {config['safety_level']}")
         print(variant.get_safety_warning())
         
         # Get assembly file
         asm_file = config['assembly_file']
         if not asm_file.exists():
-            print(f"❌ Assembly file not found: {asm_file}")
+            print(f" Assembly file not found: {asm_file}")
             return False
         
         # Create output directories
@@ -100,17 +100,17 @@ class MBRBuilder:
         binary_file = dist_bin / f"{variant_name}.bin"
         success, msg = self.compiler.compile_asm_to_binary(asm_file, binary_file)
         if not success:
-            print(f"❌ Assembly compilation failed: {msg}")
+            print(f" Assembly compilation failed: {msg}")
             return False
         
-        print(f"✅ Assembly compiled: {binary_file}")
+        print(f" Assembly compiled: {binary_file}")
         
         # Read binary data
         try:
             with open(binary_file, 'rb') as f:
                 mbr_data = f.read()
         except Exception as e:
-            print(f"❌ Failed to read binary: {e}")
+            print(f" Failed to read binary: {e}")
             return False
         
         # Create C++ executable
@@ -118,16 +118,16 @@ class MBRBuilder:
             variant_name, mbr_data, dist_exe
         )
         if not success:
-            print(f"❌ Executable creation failed: {msg}")
+            print(f" Executable creation failed: {msg}")
             return False
         
-        print(f"✅ Executable created: {dist_exe}/{variant_name}")
+        print(f" Executable created: {dist_exe}/{variant_name}")
         
         return True
     
     def build_all(self) -> bool:
         """Build all variants."""
-        print("🏗️  Building all MBR variants...")
+        print("  Building all MBR variants...")
         
         success_all = True
         for variant_name in self.variants:
@@ -135,31 +135,31 @@ class MBRBuilder:
                 success_all = False
         
         if success_all:
-            print("\n🎉 All variants built successfully!")
+            print("\n All variants built successfully!")
         else:
-            print("\n❌ Some variants failed to build")
+            print("\n Some variants failed to build")
         
         return success_all
     
     def list_variants(self):
         """List all available variants."""
-        print("📋 Available MBR Variants:")
+        print(" Available MBR Variants:")
         print("=" * 60)
         
         for name, variant in self.variants.items():
             config = variant.get_config()
             safety_emoji = {
-                'safe': '✅',
-                'destructive': '🚨',
-                'experimental': '⚠️'
+                'safe': '',
+                'destructive': '',
+                'experimental': ''
             }.get(config['safety_level'], '❓')
             
             print(f"{safety_emoji} {name}")
             print(f"   📝 {config['display_name']}")
             print(f"   📄 {config['description']}")
-            print(f"   🔒 Safety: {config['safety_level']}")
-            print(f"   🏷️  Category: {config['category']}")
-            print(f"   🛠️  Features: {', '.join(config['features'])}")
+            print(f"    Safety: {config['safety_level']}")
+            print(f"     Category: {config['category']}")
+            print(f"     Features: {', '.join(config['features'])}")
             print()
 
 
@@ -207,7 +207,7 @@ Examples:
     if args.build:
         success = builder.build_variant(args.build)
         if success and args.test:
-            print(f"\n🧪 Testing {args.build} variant...")
+            print(f"\n Testing {args.build} variant...")
             # Import test functionality
             from src.tools.test import MBRTester
             tester = MBRTester()
@@ -217,7 +217,7 @@ Examples:
     if args.build_all:
         success = builder.build_all()
         if success and args.test:
-            print("\n🧪 Testing all variants...")
+            print("\n Testing all variants...")
             from src.tools.test import MBRTester
             tester = MBRTester()
             tester.test_all()

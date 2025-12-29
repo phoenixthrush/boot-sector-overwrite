@@ -36,7 +36,7 @@ def clean_artifacts():
         '*.bin',
     ]
     
-    print("🧹 Cleaning build artifacts...")
+    print(" Cleaning build artifacts...")
     
     # Remove directories
     for dir_name in dirs_to_clean:
@@ -52,7 +52,7 @@ def clean_artifacts():
                 print(f"🗑️  Removing file: {file_path}")
                 file_path.unlink()
     
-    print("✅ Clean completed!")
+    print(" Clean completed!")
 
 
 if __name__ == "__main__":

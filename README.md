@@ -2,7 +2,7 @@
 
 A comprehensive Python-based build and testing system for Master Boot Record (MBR) variants with QEMU integration for safe testing.
 
-## 🚨 IMPORTANT SAFETY WARNING
+##  IMPORTANT SAFETY WARNING
 
 **This software writes to disk boot sectors. Misuse can result in:**
 - Permanent data loss
@@ -15,16 +15,16 @@ A comprehensive Python-based build and testing system for Master Boot Record (MB
 - Use virtual machines or spare hardware
 - Understand exactly what each variant does
 
-## 📋 Features
+##  Features
 
-- **🔨 Python-based build system** - No more batch files
-- **🧪 QEMU testing integration** - Safe, isolated testing
-- **🛡️ Safety mechanisms** - Multiple layers of protection
-- **🌍 Cross-platform** - Windows, Linux, macOS support
-- **📦 Modular design** - Easy to add new variants
-- **⚡ Fast compilation** - Uses system compilers
+- ** Python-based build system** - No more batch files
+- ** QEMU testing integration** - Safe, isolated testing
+- ** Safety mechanisms** - Multiple layers of protection
+- ** Cross-platform** - Windows, Linux, macOS support
+- ** Modular design** - Easy to add new variants
+- ** Fast compilation** - Uses system compilers
 
-## 🏗️ Project Structure
+##  Project Structure
 
 ```
 mbr-tools/
@@ -86,27 +86,27 @@ python test.py --test custom_message
 python test.py --test-all
 ```
 
-## 🎭 Available Variants
+##  Available Variants
 
-### ✅ Custom Message (Safe)
+###  Custom Message (Safe)
 - **Description**: Displays a friendly knock-knock joke with colors
 - **Safety**: Safe - only displays text
 - **Features**: Text display, color support, screen clearing
 - **Use**: Safe testing, demonstration
 
-### 🚨 Empty MBR (Destructive)
+###  Empty MBR (Destructive)
 - **Description**: Minimal MBR with only boot signature
 - **Safety**: Destructive - wipes boot sector
 - **Features**: Infinite loop, boot sector wipe
 - **Use**: Emergency wipe, testing recovery
 
-### ⚠️ MEMZ Style (Experimental)
+###  MEMZ Style (Experimental)
 - **Description**: Harmless MEMZ-inspired visual effects
 - **Safety**: Experimental - visual effects only
 - **Features**: Graphics, animations, colorful effects
 - **Use**: Visual testing, demonstration
 
-## 🧪 Testing with QEMU
+##  Testing with QEMU
 
 QEMU provides completely isolated testing without risking real hardware:
 
@@ -126,12 +126,12 @@ python test.py --test custom_message --no-snapshot
 
 ### QEMU Safety Features
 
-- **🔒 Snapshot mode**: Changes are temporary
-- **🌐 Network isolation**: No internet access
-- **💾 Memory limits**: Prevents resource exhaustion
-- **⏱️ Auto-shutdown**: Prevents infinite loops
+- ** Snapshot mode**: Changes are temporary
+- ** Network isolation**: No internet access
+- ** Memory limits**: Prevents resource exhaustion
+- ** Auto-shutdown**: Prevents infinite loops
 
-## 🔧 Advanced Usage
+##  Advanced Usage
 
 ### Building Individual Variants
 
@@ -165,16 +165,16 @@ python test.py --create-images
 - **🟡 Experimental**: May have unexpected behavior
 - **🔴 Destructive**: Will modify/disk data
 
-## 🛡️ Safety Guidelines
+##  Safety Guidelines
 
-### ✅ DO
+###  DO
 - Always test with QEMU first
 - Back up important data
 - Use virtual machines
 - Read variant descriptions
 - Understand safety warnings
 
-### ❌ DON'T
+###  DON'T
 - Test on production systems
 - Use without understanding
 - Ignore safety warnings
@@ -188,7 +188,7 @@ python test.py --create-images
 3. **Test Environment**: Use disposable VMs
 4. **Documentation**: Read all safety warnings
 
-## 🔧 Adding New Variants
+##  Adding New Variants
 
 1. **Create variant directory**:
    ```bash
@@ -254,7 +254,7 @@ qemu-system-i386 --version
 **QEMU unavailable**: Install from package manager or official site
 **Permission denied**: Check file permissions and run as admin if needed
 
-## 📚 Documentation
+##  Documentation
 
 - `docs/safety-warning.md` - Detailed safety information
 - `docs/qemu-guide.md` - QEMU usage guide
@@ -280,4 +280,4 @@ MIT License - See LICENSE file for details
 
 ---
 
-**⚠️ Remember: This is powerful software. Use responsibly and test safely!**
+** Remember: This is powerful software. Use responsibly and test safely!**

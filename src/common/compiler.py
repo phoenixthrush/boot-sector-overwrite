@@ -251,7 +251,7 @@ int main(int argc, char* argv[]) {{
     std::cout << "MBR Variant: {variant_name}" << std::endl;
     std::cout << "Target: " << target << std::endl;
     
-    std::cout << "\\n⚠️  WARNING: This will overwrite the Master Boot Record!" << std::endl;
+    std::cout << "\\n  WARNING: This will overwrite the Master Boot Record!" << std::endl;
     std::cout << "Type 'YES' to continue: ";
     
     std::string confirmation;
@@ -263,9 +263,9 @@ int main(int argc, char* argv[]) {{
     }}
     
     if (writeMBR(target)) {{
-        std::cout << "✅ MBR written successfully!" << std::endl;
+        std::cout << " MBR written successfully!" << std::endl;
     }} else {{
-        std::cout << "❌ Failed to write MBR!" << std::endl;
+        std::cout << " Failed to write MBR!" << std::endl;
         return 1;
     }}
     
@@ -303,7 +303,7 @@ int main(int argc, char* argv[]) {{
         info = []
         
         for dep, available in deps.items():
-            status = "✅" if available else "❌"
+            status = "" if available else ""
             tool_name = dep.replace('_', ' ').title()
             info.append(f"{status} {tool_name}")
             

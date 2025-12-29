@@ -21,7 +21,7 @@ try:
     from variants.empty.variant import EmptyVariant
     from variants.memz.variant import MemzVariant
 except ImportError as e:
-    print(f"❌ Import error: {e}")
+    print(f" Import error: {e}")
     print("Please ensure you're running from the project root directory")
     sys.exit(1)
 
@@ -43,20 +43,20 @@ class MBRTester:
     
     def check_qemu(self) -> bool:
         """Check if QEMU is available."""
-        print("🔍 Checking QEMU availability...")
+        print(" Checking QEMU availability...")
         
         if not self.qemu.is_available():
-            print("❌ QEMU not available!")
+            print(" QEMU not available!")
             print(self.qemu.get_dependency_info())
             return False
         
-        print("✅ QEMU is available")
+        print(" QEMU is available")
         return True
     
     def test_variant(self, variant_name: str, options: dict = None) -> bool:
         """Test a specific MBR variant in QEMU."""
         if variant_name not in self.variants:
-            print(f"❌ Unknown variant: {variant_name}")
+            print(f" Unknown variant: {variant_name}")
             print(f"Available variants: {', '.join(self.variants.keys())}")
             return False
         
@@ -69,16 +69,16 @@ class MBRTester:
         # Load or build variant
         mbr_data = self._load_variant_binary(variant_name)
         if mbr_data is None:
-            print(f"❌ Failed to load {variant_name} binary")
-            print("💡 Build variant first with: python build.py --build {variant_name}")
+            print(f" Failed to load {variant_name} binary")
+            print(" Build variant first with: python build.py --build {variant_name}")
             return False
         
         # Use variant-specific test options
         test_options = options or config['test_options']
         
-        print(f"🧪 Testing {config['display_name']} variant...")
-        print(f"📋 Description: {config['description']}")
-        print(f"⚠️  Safety Level: {config['safety_level']}")
+        print(f" Testing {config['display_name']} variant...")
+        print(f" Description: {config['description']}")
+        print(f"  Safety Level: {config['safety_level']}")
         
         return self.qemu.run_variant_test(variant_name, mbr_data, test_options)
     
@@ -87,7 +87,7 @@ class MBRTester:
         if not self.check_qemu():
             return False
         
-        print("🧪 Testing all MBR variants...")
+        print(" Testing all MBR variants...")
         
         success_all = True
         for variant_name in self.variants:
@@ -97,9 +97,9 @@ class MBRTester:
         
         print(f"\n{'='*60}")
         if success_all:
-            print("🎉 All tests completed successfully!")
+            print(" All tests completed successfully!")
         else:
-            print("❌ Some tests failed")
+            print(" Some tests failed")
         
         return success_all
     
@@ -112,7 +112,7 @@ class MBRTester:
                 with open(binary_path, 'rb') as f:
                     return f.read()
             except Exception as e:
-                print(f"❌ Error loading binary: {e}")
+                print(f" Error loading binary: {e}")
                 return None
         else:
             # Try to build it
@@ -128,7 +128,7 @@ class MBRTester:
         
         asm_file = config['assembly_file']
         if not asm_file.exists():
-            print(f"❌ Assembly file not found: {asm_file}")
+            print(f" Assembly file not found: {asm_file}")
             return False
         
         # Create output directory
@@ -140,9 +140,9 @@ class MBRTester:
         success, msg = self.compiler.compile_asm_to_binary(asm_file, binary_file)
         
         if success:
-            print(f"✅ Built {variant_name}: {binary_file}")
+            print(f" Built {variant_name}: {binary_file}")
         else:
-            print(f"❌ Build failed: {msg}")
+            print(f" Build failed: {msg}")
         
         return success
     
@@ -151,7 +151,7 @@ class MBRTester:
         if not self.check_qemu():
             return False
         
-        print("📁 Creating test disk images...")
+        print(" Creating test disk images...")
         
         variants_data = {}
         for variant_name in self.variants:
@@ -159,14 +159,14 @@ class MBRTester:
             if mbr_data:
                 variants_data[variant_name] = mbr_data
             else:
-                print(f"❌ Failed to load {variant_name}")
+                print(f" Failed to load {variant_name}")
                 return False
         
         return self.qemu.create_test_suite(variants_data)
     
     def list_variants(self):
         """List all available variants with test info."""
-        print("🧪 MBR Variants - Testing Information")
+        print(" MBR Variants - Testing Information")
         print("=" * 60)
         
         for name, variant in self.variants.items():
@@ -174,17 +174,17 @@ class MBRTester:
             test_opts = config['test_options']
             
             safety_emoji = {
-                'safe': '✅',
-                'destructive': '🚨',
-                'experimental': '⚠️'
+                'safe': '',
+                'destructive': '',
+                'experimental': ''
             }.get(config['safety_level'], '❓')
             
             print(f"{safety_emoji} {name}")
             print(f"   📝 {config['display_name']}")
-            print(f"   ⏱️  Timeout: {test_opts['timeout_seconds']}s")
-            print(f"   💾 Memory: {test_opts['memory_mb']}MB")
-            print(f"   🔒 Snapshot: {'Yes' if test_opts['snapshot'] else 'No'}")
-            print(f"   🌐 Isolated: {'Yes' if test_opts['isolated'] else 'No'}")
+            print(f"     Timeout: {test_opts['timeout_seconds']}s")
+            print(f"    Memory: {test_opts['memory_mb']}MB")
+            print(f"    Snapshot: {'Yes' if test_opts['snapshot'] else 'No'}")
+            print(f"    Isolated: {'Yes' if test_opts['isolated'] else 'No'}")
             print()
 
 

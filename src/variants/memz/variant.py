@@ -44,7 +44,7 @@ class MemzVariant:
     def get_safety_warning(self) -> str:
         """Get safety warning for this variant."""
         return f"""
-⚠️  {self.display_name} MBR Variant
+  {self.display_name} MBR Variant
 
 Safety Level: {self.safety_level.upper()}
 
