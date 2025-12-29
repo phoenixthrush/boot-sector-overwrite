@@ -180,7 +180,7 @@ class MBRTester:
             }.get(config['safety_level'], '❓')
             
             print(f"{safety_emoji} {name}")
-            print(f"   📝 {config['display_name']}")
+            print(f"    {config['display_name']}")
             print(f"     Timeout: {test_opts['timeout_seconds']}s")
             print(f"    Memory: {test_opts['memory_mb']}MB")
             print(f"    Snapshot: {'Yes' if test_opts['snapshot'] else 'No'}")

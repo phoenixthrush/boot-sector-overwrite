@@ -155,8 +155,8 @@ class MBRBuilder:
             }.get(config['safety_level'], '❓')
             
             print(f"{safety_emoji} {name}")
-            print(f"   📝 {config['display_name']}")
-            print(f"   📄 {config['description']}")
+            print(f"    {config['display_name']}")
+            print(f"    {config['description']}")
             print(f"    Safety: {config['safety_level']}")
             print(f"     Category: {config['category']}")
             print(f"     Features: {', '.join(config['features'])}")

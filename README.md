@@ -1,4 +1,4 @@
-# MBR Tools 🛠️
+# MBR Tools 
 
 A comprehensive Python-based build and testing system for Master Boot Record (MBR) variants with QEMU integration for safe testing.
 
@@ -161,9 +161,9 @@ python test.py --create-images
 
 ### Safety Levels
 
-- **🟢 Safe**: No destructive behavior
-- **🟡 Experimental**: May have unexpected behavior
-- **🔴 Destructive**: Will modify/disk data
+- ** Safe**: No destructive behavior
+- ** Experimental**: May have unexpected behavior
+- ** Destructive**: Will modify/disk data
 
 ##  Safety Guidelines
 
