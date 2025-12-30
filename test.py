@@ -1,260 +1,141 @@
 #!/usr/bin/env python3
-"""
-MBR Tools Testing System
-
-This script tests MBR variants safely using QEMU virtualization.
-"""
+"""Simple MBR tester."""
 
 import sys
 import os
-import argparse
+import subprocess
+import tempfile
 from pathlib import Path
 
-# Add src directory to path
-sys.path.insert(0, str(Path(__file__).parent / 'src'))
 
-try:
-    from common.qemu_runner import QEMURunner
-    from common.mbr_writer import MBRWriter
-    from common.compiler import MBRCompiler
-    from variants.custom_message.variant import CustomMessageVariant
-    from variants.empty.variant import EmptyVariant
-    from variants.memz.variant import MemzVariant
-except ImportError as e:
-    print(f" Import error: {e}")
-    print("Please ensure you're running from the project root directory")
-    sys.exit(1)
+def find_qemu():
+    for cmd in ['qemu-system-i386', 'qemu-system-x86_64']:
+        if os.system(f"which {cmd} > /dev/null 2>&1") == 0:
+            return cmd
+    return None
 
 
-class MBRTester:
-    """Testing system for MBR variants."""
+def create_disk_image(path, size_mb=10):
+    qemu_img = find_qemu()
+    if not qemu_img:
+        qemu_img = 'qemu-img'
     
-    def __init__(self):
-        self.qemu = QEMURunner()
-        self.writer = MBRWriter()
-        self.compiler = MBRCompiler()
-        
-        # Register all variants
-        self.variants = {
-            'custom_message': CustomMessageVariant(),
-            'empty': EmptyVariant(),
-            'memz': MemzVariant()
-        }
+    path.parent.mkdir(parents=True, exist_ok=True)
     
-    def check_qemu(self) -> bool:
-        """Check if QEMU is available."""
-        print(" Checking QEMU availability...")
-        
-        if not self.qemu.is_available():
-            print(" QEMU not available!")
-            print(self.qemu.get_dependency_info())
-            return False
-        
-        print(" QEMU is available")
+    cmd = [qemu_img, 'create', '-f', 'raw', str(path), f'{size_mb}M']
+    result = subprocess.run(cmd, capture_output=True, text=True)
+    
+    if result.returncode == 0:
+        print(f"Created {path.name} ({size_mb}MB)")
         return True
+    else:
+        print(f"Failed to create image: {result.stderr}")
+        return False
+
+
+def write_mbr_to_image(mbr_data, image_path):
+    if len(mbr_data) != 512:
+        print("Error: MBR data must be 512 bytes")
+        return False
     
-    def test_variant(self, variant_name: str, options: dict = None) -> bool:
-        """Test a specific MBR variant in QEMU."""
-        if variant_name not in self.variants:
-            print(f" Unknown variant: {variant_name}")
-            print(f"Available variants: {', '.join(self.variants.keys())}")
+    with open(image_path, 'r+b') as f:
+        f.write(mbr_data)
+    
+    print(f"MBR written to {image_path.name}")
+    return True
+
+
+def test_variant_in_qemu(mbr_data, name, timeout=30):
+    qemu = find_qemu()
+    if not qemu:
+        print("QEMU not found")
+        return False
+    
+    with tempfile.TemporaryDirectory() as temp_dir:
+        temp_path = Path(temp_dir)
+        image_path = temp_path / f"{name}_test.img"
+        
+        if not create_disk_image(image_path):
             return False
         
-        if not self.check_qemu():
+        if not write_mbr_to_image(mbr_data, image_path):
             return False
         
-        variant = self.variants[variant_name]
-        config = variant.get_config()
+        print(f"Testing {name} (timeout: {timeout}s)...")
+        print("Close QEMU window to stop test")
         
-        # Load or build variant
-        mbr_data = self._load_variant_binary(variant_name)
-        if mbr_data is None:
-            print(f" Failed to load {variant_name} binary")
-            print(" Build variant first with: python build.py --build {variant_name}")
+        cmd = [qemu, '-hda', str(image_path), '-snapshot', '-net', 'none']
+        try:
+            subprocess.run(cmd, timeout=timeout)
+            print("Test completed")
+            return True
+        except subprocess.TimeoutExpired:
+            print("Test completed (timeout)")
+            return True
+        except Exception as e:
+            print(f"Test failed: {e}")
             return False
-        
-        # Use variant-specific test options
-        test_options = options or config['test_options']
-        
-        print(f" Testing {config['display_name']} variant...")
-        print(f" Description: {config['description']}")
-        print(f"  Safety Level: {config['safety_level']}")
-        
-        return self.qemu.run_variant_test(variant_name, mbr_data, test_options)
+
+
+def load_mbr_binary(name):
+    bin_file = Path(f"dist/{name}.bin")
+    if not bin_file.exists():
+        print(f"Error: {bin_file} not found. Build first.")
+        return None
     
-    def test_all(self, options: dict = None) -> bool:
-        """Test all MBR variants."""
-        if not self.check_qemu():
-            return False
-        
-        print(" Testing all MBR variants...")
-        
-        success_all = True
-        for variant_name in self.variants:
-            print(f"\n{'='*60}")
-            if not self.test_variant(variant_name, options):
-                success_all = False
-        
-        print(f"\n{'='*60}")
-        if success_all:
-            print(" All tests completed successfully!")
-        else:
-            print(" Some tests failed")
-        
-        return success_all
+    with open(bin_file, 'rb') as f:
+        return f.read()
+
+
+def test_variant(name, timeout=30):
+    mbr_data = load_mbr_binary(name)
+    if mbr_data is None:
+        return False
     
-    def _load_variant_binary(self, variant_name: str) -> bytes:
-        """Load MBR binary from disk or build it if needed."""
-        binary_path = Path(f"dist/binaries/{variant_name}.bin")
-        
-        if binary_path.exists():
-            try:
-                with open(binary_path, 'rb') as f:
-                    return f.read()
-            except Exception as e:
-                print(f" Error loading binary: {e}")
-                return None
-        else:
-            # Try to build it
-            print(f"🔨 Building {variant_name}...")
-            if self._build_variant(variant_name):
-                return self._load_variant_binary(variant_name)
-            return None
+    return test_variant_in_qemu(mbr_data, name, timeout)
+
+
+def test_all(timeout=30):
+    variants = ["custom_message", "empty", "memz"]
+    success = True
     
-    def _build_variant(self, variant_name: str) -> bool:
-        """Build a variant."""
-        variant = self.variants[variant_name]
-        config = variant.get_config()
-        
-        asm_file = config['assembly_file']
-        if not asm_file.exists():
-            print(f" Assembly file not found: {asm_file}")
-            return False
-        
-        # Create output directory
-        dist_bin = Path("dist/binaries")
-        dist_bin.mkdir(parents=True, exist_ok=True)
-        
-        # Compile assembly
-        binary_file = dist_bin / f"{variant_name}.bin"
-        success, msg = self.compiler.compile_asm_to_binary(asm_file, binary_file)
-        
-        if success:
-            print(f" Built {variant_name}: {binary_file}")
-        else:
-            print(f" Build failed: {msg}")
-        
-        return success
+    for variant in variants:
+        if not test_variant(variant, timeout):
+            success = False
     
-    def create_test_images(self) -> bool:
-        """Create test disk images for all variants."""
-        if not self.check_qemu():
-            return False
-        
-        print(" Creating test disk images...")
-        
-        variants_data = {}
-        for variant_name in self.variants:
-            mbr_data = self._load_variant_binary(variant_name)
-            if mbr_data:
-                variants_data[variant_name] = mbr_data
-            else:
-                print(f" Failed to load {variant_name}")
-                return False
-        
-        return self.qemu.create_test_suite(variants_data)
+    if success:
+        print("All tests completed successfully")
+    else:
+        print("Some tests failed")
     
-    def list_variants(self):
-        """List all available variants with test info."""
-        print(" MBR Variants - Testing Information")
-        print("=" * 60)
-        
-        for name, variant in self.variants.items():
-            config = variant.get_config()
-            test_opts = config['test_options']
-            
-            safety_emoji = {
-                'safe': '',
-                'destructive': '',
-                'experimental': ''
-            }.get(config['safety_level'], '❓')
-            
-            print(f"{safety_emoji} {name}")
-            print(f"    {config['display_name']}")
-            print(f"     Timeout: {test_opts['timeout_seconds']}s")
-            print(f"    Memory: {test_opts['memory_mb']}MB")
-            print(f"    Snapshot: {'Yes' if test_opts['snapshot'] else 'No'}")
-            print(f"    Isolated: {'Yes' if test_opts['isolated'] else 'No'}")
-            print()
+    return success
 
 
 def main():
-    parser = argparse.ArgumentParser(
-        description="MBR Tools Testing System",
-        formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog="""
-Examples:
-  %(prog)s --check-qemu           Check QEMU availability
-  %(prog)s --list                 List variants with test info
-  %(prog)s --test custom_message   Test specific variant
-  %(prog)s --test-all             Test all variants
-  %(prog)s --create-images        Create test disk images
-        """
-    )
-    
-    parser.add_argument('--check-qemu', action='store_true',
-                    help='Check QEMU availability')
-    parser.add_argument('--list', action='store_true',
-                    help='List variants with testing information')
-    parser.add_argument('--test', metavar='VARIANT',
-                    help='Test specific variant')
-    parser.add_argument('--test-all', action='store_true',
-                    help='Test all variants')
-    parser.add_argument('--create-images', action='store_true',
-                    help='Create test disk images')
-    parser.add_argument('--no-snapshot', action='store_true',
-                    help='Disable snapshot mode for testing')
-    parser.add_argument('--no-isolation', action='store_true',
-                    help='Disable network isolation')
-    parser.add_argument('--timeout', type=int, metavar='SECONDS',
-                    help='Override test timeout')
-    
-    args = parser.parse_args()
-    
-    if not any([args.check_qemu, args.list, args.test, args.test_all, args.create_images]):
-        parser.print_help()
+    if len(sys.argv) < 2:
+        print("Usage: python test.py <variant>|all [--timeout N]")
+        print("Examples:")
+        print("  python test.py custom_message")
+        print("  python test.py all")
+        print("  python test.py all --timeout 60")
         return
     
-    tester = MBRTester()
+    cmd = sys.argv[1]
+    timeout = 30
     
-    if args.check_qemu:
-        tester.check_qemu()
-        return
+    if "--timeout" in sys.argv:
+        idx = sys.argv.index("--timeout")
+        if idx + 1 < len(sys.argv):
+            try:
+                timeout = int(sys.argv[idx + 1])
+            except ValueError:
+                print("Invalid timeout value")
+                return
     
-    if args.list:
-        tester.list_variants()
-        return
-    
-    # Prepare test options
-    test_options = {}
-    if args.no_snapshot:
-        test_options['snapshot'] = False
-    if args.no_isolation:
-        test_options['isolated'] = False
-    if args.timeout:
-        test_options['timeout_seconds'] = args.timeout
-    
-    if args.test:
-        tester.test_variant(args.test, test_options)
-        return
-    
-    if args.test_all:
-        tester.test_all(test_options)
-        return
-    
-    if args.create_images:
-        tester.create_test_images()
-        return
+    if cmd == "all":
+        test_all(timeout)
+    else:
+        test_variant(cmd, timeout)
 
 
 if __name__ == "__main__":
