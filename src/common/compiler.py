@@ -196,8 +196,6 @@ class MBRCompiler:
 #else
 #include <fcntl.h>
 #include <unistd.h>
-#include <sys/ioctl.h>
-#include <linux/hdreg.h>
 #endif
 
 const unsigned char MasterBootRecord[512] = {{
